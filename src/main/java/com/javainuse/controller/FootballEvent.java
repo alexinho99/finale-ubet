@@ -1,5 +1,8 @@
 package com.javainuse.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class FootballEvent {
 
     private String homeTeam;
@@ -7,19 +10,73 @@ public class FootballEvent {
     private double firstTeamToWin;
     private double draw;
     private double secondTeamToWin;
-    private String href;
+    private String liveResult;
+    private int homeScore;
+    private int href;
+    private boolean finished;
+    private boolean updated;
+
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    public int getAwayScore() {
+        return awayScore;
+    }
+
+    public void setAwayScore(int awayScore) {
+        this.awayScore = awayScore;
+    }
+
+    private int awayScore;
+
+    public int getHomeScore() {
+        return homeScore;
+    }
+
+    public void setHomeScore(int homeScore) {
+        this.homeScore = homeScore;
+    }
+
+
 
     public FootballEvent() {
 
     }
 
-    public FootballEvent(String homeTeam, String awayTeam, double firstTeamToWin, double draw, double secondTeamToWin, String href) {
+    public int getHref() {
+        return href;
+    }
+
+    public void setHref(int href) {
+        this.href = href;
+    }
+
+    public FootballEvent(String homeTeam, String awayTeam, double firstTeamToWin, double draw, double secondTeamToWin, String liveResult, int homeScore, int awayScore, int href
+    , boolean updated, boolean finished) {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
         this.firstTeamToWin = firstTeamToWin;
         this.draw = draw;
         this.secondTeamToWin = secondTeamToWin;
+        this.liveResult = liveResult;
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
         this.href = href;
+        this.updated = updated;
+        this.finished = finished;
     }
 
     public String getHomeTeam() {
@@ -62,11 +119,17 @@ public class FootballEvent {
         this.secondTeamToWin = secondTeamToWin;
     }
 
-    public String getHref() {
-        return href;
+    public String getLiveResult() {
+        return liveResult;
     }
 
-    public void setHref(String href) {
-        this.href = href;
+    public void setLiveResult(String liveResult) {
+        this.liveResult = liveResult;
     }
+
+    public String toString() {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(this);
+    }
+
 }

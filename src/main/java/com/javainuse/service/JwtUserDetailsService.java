@@ -2,6 +2,9 @@ package com.javainuse.service;
 
 import java.util.ArrayList;
 
+import com.javainuse.controller.FootballEvent;
+import com.javainuse.dao.MatchDao;
+import com.javainuse.model.MatchesEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,10 +18,13 @@ import com.javainuse.model.DAOUser;
 import com.javainuse.model.UserDTO;
 
 @Service
-public class JwtUserDetailsService implements UserDetailsService {
+public class JwtUserDetailsService implements UserDetailsService{
 	
 	@Autowired
 	private UserDao userDao;
+
+	@Autowired
+	private MatchDao matchDao;
 
 	@Autowired
 	private PasswordEncoder bcryptEncoder;
@@ -39,4 +45,15 @@ public class JwtUserDetailsService implements UserDetailsService {
 		newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
 		return userDao.save(newUser);
 	}
+
+//	public MatchesEntity saveMatch(FootballEvent event)  {
+//		MatchesEntity matchesEntity = new MatchesEntity();
+//		matchesEntity.setHomeTeam(event.getHomeTeam());
+//		matchesEntity.setAwayTeam(event.getAwayTeam());
+//		matchesEntity.setFirstTeamToWin(event.getFirstTeamToWin());
+//		matchesEntity.setDraw(event.getDraw());
+//		matchesEntity.setSecondTeamToWin(event.getSecondTeamToWin());
+//		matchesEntity.setHref(event.getHref());
+//		return matchDao.save(matchesEntity);
+//	}
 }
