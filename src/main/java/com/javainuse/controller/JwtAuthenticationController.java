@@ -1,8 +1,10 @@
 package com.javainuse.controller;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
-import com.javainuse.model.MatchesEntity;
+import com.javainuse.dao.UserDao;
+import com.javainuse.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +21,6 @@ import com.javainuse.service.JwtUserDetailsService;
 
 
 import com.javainuse.config.JwtTokenUtil;
-import com.javainuse.model.JwtRequest;
-import com.javainuse.model.JwtResponse;
-import com.javainuse.model.UserDTO;
 
 @RestController
 @CrossOrigin
@@ -36,7 +35,7 @@ public class JwtAuthenticationController {
 	@Autowired
 	private JwtUserDetailsService userDetailsService;
 
-	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
@@ -51,7 +50,13 @@ public class JwtAuthenticationController {
 	
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
 	public ResponseEntity<?> saveUser(@RequestBody UserDTO user) throws Exception {
-		return ResponseEntity.ok(userDetailsService.save(user));
+		final DAOUser userInfo = userDetailsService.save(user);
+		final String token = jwtTokenUtil.generateToken(new org.springframework.security.core.userdetails.User(
+																	userInfo.getUsername(),
+																	userInfo.getPassword(),
+																	new ArrayList<>()
+														));
+		return ResponseEntity.ok(new JwtResponse(token));
 	}
 	
 	private void authenticate(String username, String password) throws Exception {

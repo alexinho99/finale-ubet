@@ -14,6 +14,8 @@ public class DAOUser {
 	@Column
 	private String username;
 	@Column
+	private String email;
+	@Column
 	@JsonIgnore
 	private String password;
 
@@ -23,6 +25,14 @@ public class DAOUser {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPassword() {

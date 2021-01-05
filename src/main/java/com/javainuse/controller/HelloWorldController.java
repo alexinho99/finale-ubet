@@ -232,7 +232,7 @@ public class HelloWorldController {
 
 	public void printObject(Object object) {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		System.out.println(gson.toJson(object));
+//		System.out.println(gson.toJson(object));
 	}
 
 	public String printObjecto(Object object) {
