@@ -14,6 +14,7 @@ import com.javainuse.dao.UserDao;
 import com.javainuse.model.*;
 import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -33,6 +34,15 @@ import com.javainuse.config.JwtTokenUtil;
 @RestController
 @CrossOrigin
 public class JwtAuthenticationController {
+
+	@Value("${spring.datasource.url}")
+	private String datasourceUrl;
+
+	@Value("${spring.datasource.username}")
+	private String datasourceUsername;
+
+	@Value("${spring.datasource.password}")
+	private String datasourcePassword;
 
 	@Autowired
 	private AuthenticationManager authenticationManager;
@@ -73,9 +83,9 @@ public class JwtAuthenticationController {
 			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
 			// create our mysql database connection
 			String myDriver = "org.gjt.mm.mysql.Driver";
-			String myUrl = "jdbc:mysql://localhost/ubeting";
+			String myUrl = this.datasourceUrl;
 			//	Class.forName(myDriver);
-			Connection conn = DriverManager.getConnection(myUrl, "root", "root");
+			Connection conn = DriverManager.getConnection(myUrl, this.datasourceUsername, this.datasourcePassword);
 
 			// our SQL SELECT query.
 			// if you only need a few columns, specify them by name instead of using "*"
