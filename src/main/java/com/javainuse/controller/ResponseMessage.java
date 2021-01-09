@@ -6,15 +6,6 @@ public class ResponseMessage {
 
     private String message;
     private String token;
-    private JwtResponse jwtResponse;
-
-    public JwtResponse getJwtResponse() {
-        return jwtResponse;
-    }
-
-    public void setJwtResponse(JwtResponse jwtResponse) {
-        this.jwtResponse = jwtResponse;
-    }
 
     public String getToken() {
         return token;
