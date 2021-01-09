@@ -16,6 +16,7 @@
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
           <factory-entry name="entityManagerFactory" />
+          <factory-entry name="spring-boot-jwt" />
         </datasource-mapping>
         <naming-strategy-map />
       </configuration>
@@ -40,7 +41,7 @@
       <library>
         <CLASSES />
         <JAVADOC>
-          <root url="jar://$MODULE_DIR$/../../fbey/gson-2.6.2-javadoc.jar!/" />
+          <root url="jar://$MODULE_DIR$/../fbey/gson-2.6.2-javadoc.jar!/" />
         </JAVADOC>
         <SOURCES />
       </library>
@@ -48,16 +49,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../json/gson-2.8.2.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../gson-2.8.2.jar!/" />
+          <root url="jar://$MODULE_DIR$/../json/gson-2.8.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

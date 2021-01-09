@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,9 +33,48 @@ public class HelloWorldController {
 		return  result;
 	}
 
+	@RequestMapping(value = "/username", method = RequestMethod.GET)
+	public String userPage() throws IOException, SQLException {
+		String buffer = "";
+		try
+		{
+			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+			// create our mysql database connection
+			String myDriver = "org.gjt.mm.mysql.Driver";
+			String myUrl = "jdbc:mysql://localhost/bootdb";
+		//	Class.forName(myDriver);
+			Connection conn = DriverManager.getConnection(myUrl, "root", "root");
+
+			// our SQL SELECT query.
+			// if you only need a few columns, specify them by name instead of using "*"
+			String query = "SELECT * FROM user";
+
+			// create the java statement
+			Statement st = conn.createStatement();
+
+			// execute the query, and get a java resultset
+			ResultSet rs = st.executeQuery(query);
+
+			// iterate through the java resultset
+			while (rs.next())
+			{
+
+				String firstName = rs.getString("username");
+				buffer = firstName;
+			}
+			st.close();
+		}
+		catch (Exception e)
+		{
+			System.err.println("Got an exception! ");
+			System.err.println(e.getMessage());
+		}
+
+		return buffer;
+	}
 
 	@RequestMapping(value = "/matches", method = RequestMethod.GET)
-	public String firstPage() throws IOException {
+	public String firstPage() throws IOException, SQLException {
 
 		String result = "";
 
@@ -191,6 +231,9 @@ public class HelloWorldController {
 					matchesEntity.setLiveResult(event.getLiveResult());
 					matchDao.save(matchesEntity);
 					finalUpComingMatches.add(event);
+					if(finalUpComingMatches.size() == 8) {
+						break;
+					}
 				}
 
 			}
@@ -219,12 +262,16 @@ public class HelloWorldController {
 					matchesEntity.setLiveResult(event.getLiveResult());
 					matchDao.save(matchesEntity);
 					finalLiveMatches.add(event);
+					if(finalLiveMatches.size() == 8) {
+						break;
+					}
 				}
 			}
 			liveMatchesMap.put("live", finalLiveMatches);
 			LiveMatches liveMatches = new LiveMatches(liveMatchesMap);
 			result += printObjecto(liveMatches);
 		}
+
 
 
 		return result;
