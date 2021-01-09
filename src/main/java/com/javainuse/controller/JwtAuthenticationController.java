@@ -6,7 +6,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,9 +56,9 @@ public class JwtAuthenticationController {
 		} catch (Exception e) {
 			String result = "";
 			ResponseMessage responseMessage = new ResponseMessage();
-			responseMessage.setToken("null");
+			responseMessage.setToken(null);
 			responseMessage.setMessage("Wrong credentials!");
-			result = printObjecto(responseMessage);
+			result = printObject(responseMessage);
 			return ResponseEntity.ok(result);
 		}
 
@@ -74,7 +70,7 @@ public class JwtAuthenticationController {
 		responseMessage.setToken(token);
 		responseMessage.setMessage("Successfully logged in!");
 
-		String result = printObjecto(responseMessage);
+		String result = printObject(responseMessage);
 		return ResponseEntity.ok(result);
 	}
 	
@@ -84,25 +80,14 @@ public class JwtAuthenticationController {
 		String token = null;
 		DAOUser userInfo = new DAOUser();
 		ResponseMessage responseMessage = new ResponseMessage();
-		int count = 0;
-		boolean isValid = false;
 		try
 		{
 			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-			// create our mysql database connection
 			String myDriver = "org.gjt.mm.mysql.Driver";
 			String myUrl = this.datasourceUrl;
-			//	Class.forName(myDriver);
 			Connection conn = DriverManager.getConnection(myUrl, this.datasourceUsername, this.datasourcePassword);
-
-			// our SQL SELECT query.
-			// if you only need a few columns, specify them by name instead of using "*"
 			String query = "SELECT * FROM user";
-
-			// create the java statement
 			Statement st = conn.createStatement();
-
-			// execute the query, and get a java resultset
 			ResultSet rs = st.executeQuery(query);
 
 			List<String> allUsernamesFromdb = new ArrayList<>();
@@ -112,15 +97,15 @@ public class JwtAuthenticationController {
 			st.close();
 
 			if(user.getUsername().equals("") || user.getPassword().equals("")) {
-				responseMessage.setError("Invalid username or password");
-				responseMessage.setToken("null");
-				result += printObjecto(responseMessage);
+				responseMessage.setMessage("Invalid username or password");
+				responseMessage.setToken(null);
+				result += printObject(responseMessage);
 				return ResponseEntity.ok(result);
 			}
 			else if(allUsernamesFromdb.contains(user.getUsername())) {
-				responseMessage.setError("This user has already been registered!");
-				responseMessage.setToken("null");
-				result = printObjecto(responseMessage);
+				responseMessage.setMessage("This user has already been registered!");
+				responseMessage.setToken(null);
+				result = printObject(responseMessage);
 				return ResponseEntity.ok(result);
 			} else {
 				userInfo = userDetailsService.save(user);
@@ -131,7 +116,7 @@ public class JwtAuthenticationController {
 				));
 				responseMessage.setToken(token);
 				responseMessage.setMessage("Successfully registered!");
-				result = printObjecto(responseMessage);
+				result = printObject(responseMessage);
 				return ResponseEntity.ok(result);
 			}
 
@@ -145,8 +130,8 @@ public class JwtAuthenticationController {
 		return ResponseEntity.ok(result);
 	}
 
-	public String printObjecto(Object object) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+	public String printObject(Object object) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		String result;
 		result = gson.toJson(object);
 		return result;

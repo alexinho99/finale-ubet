@@ -4,7 +4,6 @@ import com.javainuse.model.JwtResponse;
 
 public class ResponseMessage {
 
-    private String error;
     private String message;
     private String token;
     private JwtResponse jwtResponse;
@@ -35,14 +34,6 @@ public class ResponseMessage {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
     }
 
 
