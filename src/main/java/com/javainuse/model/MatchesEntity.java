@@ -28,6 +28,17 @@ public class MatchesEntity {
     @Column
     private String liveScore;
 
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
+    }
+
+    @Column
+    private boolean finished;
+
     public Integer getId() {
         return id;
     }

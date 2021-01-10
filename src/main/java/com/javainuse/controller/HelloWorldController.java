@@ -7,11 +7,16 @@ import com.javainuse.model.MatchesEntity;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.sql.*;
 import java.util.*;
 
@@ -19,16 +24,73 @@ import java.util.*;
 public class HelloWorldController {
 	List<FootballEvent> upComingEvents;
 	List<FootballEvent> liveEvents = new ArrayList<>();
-
+//@PathVariable("id") Integer id
 	@Autowired
 	private MatchDao matchDao;
 
-	@RequestMapping(value = "/match/{id}", method = RequestMethod.GET)
-	public String getSingleMatch(@PathVariable("id") Integer id) {
-		Optional<MatchesEntity> match = matchDao.findById(id);
+	@RequestMapping(value = "/match/{id}" , method = RequestMethod.GET)
+	public String getSingleMatch(@PathVariable("id") Integer id) throws IOException {
 
-		String result = "";
-		return  result;
+		MatchesEntity match = matchDao.findById(id).get();
+
+		String url = "https://www.xscores.com/soccer";
+		Document document = Jsoup.connect(url).get();
+
+		Elements elements = document.select("#menuWrapper > script");
+
+		String accessToken = "";
+		for(Element element : elements) {
+			for(Node child : element.childNodes()) {
+				String token = child.toString();
+				String[] arr = token.split("access_token");
+				token = arr[1].substring(arr[1].indexOf("\"") + 1, arr[1].lastIndexOf("\""));
+				accessToken = token;
+				break;
+			}
+		}
+
+	//	Optional<MatchesEntity> match = matchDao.findById(id);
+		URL urlLiveResult = new URL("https://api-amazon.xscores.com/m_matchresult?sport=1&match_id=" + match.getHref() +"&tz=Europe/Athens&priorityCountry=BULGARIA");
+		HttpURLConnection conn = (HttpURLConnection) urlLiveResult.openConnection();
+
+		conn.setRequestProperty("Authorization","Bearer " + accessToken);
+
+		conn.setRequestProperty("Content-Type","application/json");
+		conn.setRequestMethod("GET");
+
+
+		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		String output;
+
+		StringBuffer response = new StringBuffer();
+		while ((output = in.readLine()) != null) {
+			response.append(output);
+		}
+
+		in.close();
+
+
+		String jsonRe = printObjecto(response.toString());
+		String result = accessToken;
+
+		String newLiveScore = jsonRe.substring(jsonRe.indexOf("score") + 7, jsonRe.length() - 1);
+		newLiveScore = newLiveScore.substring(newLiveScore.indexOf("\"") + 1, newLiveScore.indexOf(",") - 2);
+		match.setLiveResult(newLiveScore);
+		matchDao.save(match);
+
+		String ftScore = jsonRe.substring(jsonRe.indexOf("ftScore") + 6, jsonRe.length() - 1);
+		ftScore = ftScore.substring(ftScore.indexOf("\"") + 1, ftScore.indexOf(",") - 2);
+		boolean finished = false;
+		for (int i = 0; i < ftScore.length(); i++) {
+			if(Character.isDigit(ftScore.charAt(i))) {
+				finished = true;
+				match.setFinished(finished);
+				break;
+			}
+		}
+		match.setFinished(finished);
+		matchDao.save(match);
+		return jsonRe;
 	}
 
 	@RequestMapping(value = "/matches", method = RequestMethod.GET)
