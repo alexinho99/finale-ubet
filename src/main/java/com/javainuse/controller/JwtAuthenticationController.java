@@ -9,9 +9,11 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.javainuse.dao.UserDao;
 import com.javainuse.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,6 +50,9 @@ public class JwtAuthenticationController {
 	@Autowired
 	private JwtUserDetailsService userDetailsService;
 
+	@Autowired
+	private UserDao daoUser;
+
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
@@ -59,7 +64,7 @@ public class JwtAuthenticationController {
 			responseMessage.setToken(null);
 			responseMessage.setMessage("Wrong credentials!");
 			result = printObject(responseMessage);
-			return ResponseEntity.ok(result);
+			return new ResponseEntity<>(result, HttpStatus.UNAUTHORIZED);
 		}
 
 		final UserDetails userDetails = userDetailsService
@@ -82,31 +87,31 @@ public class JwtAuthenticationController {
 		ResponseMessage responseMessage = new ResponseMessage();
 		try
 		{
-			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-			String myDriver = "org.gjt.mm.mysql.Driver";
-			String myUrl = this.datasourceUrl;
-			Connection conn = DriverManager.getConnection(myUrl, this.datasourceUsername, this.datasourcePassword);
-			String query = "SELECT * FROM user";
-			Statement st = conn.createStatement();
-			ResultSet rs = st.executeQuery(query);
-
-			List<String> allUsernamesFromdb = new ArrayList<>();
-			while (rs.next()){
-				allUsernamesFromdb.add(rs.getString("username"));
-			}
-			st.close();
+//			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+//			String myDriver = "org.gjt.mm.mysql.Driver";
+//			String myUrl = this.datasourceUrl;
+//			Connection conn = DriverManager.getConnection(myUrl, this.datasourceUsername, this.datasourcePassword);
+//			String query = "SELECT * FROM user";
+//			Statement st = conn.createStatement();
+//			ResultSet rs = st.executeQuery(query);
+//
+//			List<String> allUsernamesFromdb = new ArrayList<>();
+//			while (rs.next()){
+//				allUsernamesFromdb.add(rs.getString("username"));
+//			}
+//			st.close();
 
 			if(user.getUsername().equals("") || user.getPassword().equals("")) {
 				responseMessage.setMessage("Invalid username or password");
 				responseMessage.setToken(null);
 				result += printObject(responseMessage);
-				return ResponseEntity.ok(result);
+				return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 			}
-			else if(allUsernamesFromdb.contains(user.getUsername())) {
+			else if(daoUser.findByUsername(user.getUsername()) != null) {
 				responseMessage.setMessage("This user has already been registered!");
 				responseMessage.setToken(null);
 				result = printObject(responseMessage);
-				return ResponseEntity.ok(result);
+				return new ResponseEntity<>(result, HttpStatus.BAD_REQUEST);
 			} else {
 				userInfo = userDetailsService.save(user);
 				token = jwtTokenUtil.generateToken(new org.springframework.security.core.userdetails.User(
@@ -127,7 +132,10 @@ public class JwtAuthenticationController {
 			System.err.println(e.getMessage());
 		}
 
-		return ResponseEntity.ok(result);
+		responseMessage.setToken(null);
+		responseMessage.setMessage("Server error!");
+		result = printObject(responseMessage);
+		return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	public String printObject(Object object) {
