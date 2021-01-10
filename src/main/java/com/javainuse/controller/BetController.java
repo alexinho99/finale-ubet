@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -69,6 +66,11 @@ public class BetController {
         DAOUser user = userDao.findByUsername(principal.getName());
 
         return new ResponseEntity<>(betDao.getAllByUserId(user.getId()), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/bet/{matchId}", method = RequestMethod.GET)
+    public ResponseEntity<?> getBetById(@PathVariable Integer matchId) throws Exception{
+        return new ResponseEntity<>(betDao.getByMatchId(matchId), HttpStatus.OK);
     }
 
     public String printObject(Object object) {

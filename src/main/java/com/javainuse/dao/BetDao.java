@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface BetDao extends CrudRepository<BetEntity, Integer> {
     public List<BetEntity> getAllByUserId(Integer userId);
+
+    public BetEntity getByMatchId(Integer matchId);
 }

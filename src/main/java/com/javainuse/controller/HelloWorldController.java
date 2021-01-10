@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class HelloWorldController {
@@ -26,10 +23,11 @@ public class HelloWorldController {
 	@Autowired
 	private MatchDao matchDao;
 
-	@RequestMapping(value = "/match", method = RequestMethod.GET)
-	public String getSingleMatch() {
+	@RequestMapping(value = "/match/{id}", method = RequestMethod.GET)
+	public String getSingleMatch(@PathVariable("id") Integer id) {
+		Optional<MatchesEntity> match = matchDao.findById(id);
+
 		String result = "";
-//		System.out.println(matchDao.findById(1));
 		return  result;
 	}
 
