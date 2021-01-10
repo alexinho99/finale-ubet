@@ -10,7 +10,7 @@ public class DAOUser {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
+	private Integer id;
 	@Column
 	private String username;
 	@Column
@@ -18,6 +18,10 @@ public class DAOUser {
 	@Column
 	@JsonIgnore
 	private String password;
+
+	public Integer getId() {
+		return id;
+	}
 
 	public String getUsername() {
 		return username;

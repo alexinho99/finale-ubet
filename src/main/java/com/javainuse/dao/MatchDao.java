@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MatchDao extends CrudRepository<MatchesEntity, Integer> {
-
+    public MatchesEntity findByHref(Integer href);
 }

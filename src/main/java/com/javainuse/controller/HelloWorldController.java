@@ -29,48 +29,8 @@ public class HelloWorldController {
 	@RequestMapping(value = "/match", method = RequestMethod.GET)
 	public String getSingleMatch() {
 		String result = "";
-		System.out.println(matchDao.findById(1));
+//		System.out.println(matchDao.findById(1));
 		return  result;
-	}
-
-	@RequestMapping(value = "/username", method = RequestMethod.GET)
-	public String userPage() throws IOException, SQLException {
-		String buffer = "";
-		try
-		{
-			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-			// create our mysql database connection
-			String myDriver = "org.gjt.mm.mysql.Driver";
-			String myUrl = "jdbc:mysql://localhost/bootdb";
-		//	Class.forName(myDriver);
-			Connection conn = DriverManager.getConnection(myUrl, "root", "root");
-
-			// our SQL SELECT query.
-			// if you only need a few columns, specify them by name instead of using "*"
-			String query = "SELECT * FROM user";
-
-			// create the java statement
-			Statement st = conn.createStatement();
-
-			// execute the query, and get a java resultset
-			ResultSet rs = st.executeQuery(query);
-
-			// iterate through the java resultset
-			while (rs.next())
-			{
-
-				String firstName = rs.getString("username");
-				buffer = firstName;
-			}
-			st.close();
-		}
-		catch (Exception e)
-		{
-			System.err.println("Got an exception! ");
-			System.err.println(e.getMessage());
-		}
-
-		return buffer;
 	}
 
 	@RequestMapping(value = "/matches", method = RequestMethod.GET)
@@ -85,10 +45,7 @@ public class HelloWorldController {
 
 		Elements idHrefs = document.select("a[id]");
 
-
 		for (Element item : idHrefs) {
-
-
 			String href = item.attr("href");
 			Elements odds = item.getElementsByClass("odds");
 
@@ -174,7 +131,6 @@ public class HelloWorldController {
 						}
 					}
 
-
 					if (i + 1 >= odds.get(0).childNodeSize()) {
 
 						FootballEvent event = new FootballEvent();
@@ -182,13 +138,12 @@ public class HelloWorldController {
 						event.setHomeTeam(homeTeam);
 						event.setAwayTeam(awayTeam);
 						event.setDraw(draw);
-						event.setFirstTeamToWin(firstTeamToWin);
-						event.setSecondTeamToWin(secondTeamToWin);
+						event.setHomeOdd(firstTeamToWin);
+						event.setAwayOdd(secondTeamToWin);
 						event.setHomeScore(homeScore);
 						event.setAwayScore(awayScore);
 						event.setHref(hrefo);
-						System.out.println(event.toString());
-
+//						System.out.println(event.toString());
 
 						if (extractLiveResult.equals("")) {
 							upComingEvents.add(event);
@@ -198,38 +153,36 @@ public class HelloWorldController {
 							} catch (Exception e) {
 
 							}
-							//   System.out.println();
-
 						}
 						foundCoeff = false;
 					}
-
 				}
-
 			}
-
-
 		}
 
-		Map<String, List<FootballEvent>> upcomingMatchesMap = new HashMap<>();
+		Map<String, List<FootballEvent>> matchesMap = new HashMap<>();
 		List<FootballEvent> finalUpComingMatches = new ArrayList<>();
-
 
 		if (upComingEvents != null) {
 			for (FootballEvent event : upComingEvents) {
-				if (event.getHomeTeam() != null && event.getSecondTeamToWin() != 0.00 && event.getFirstTeamToWin() != 0.00 && event.getDraw() != 0.00) {
+				if (event.getHomeTeam() != null && event.getAwayOdd() != 0.00 && event.getHomeOdd() != 0.00 && event.getDraw() != 0.00) {
+					if (matchDao.findByHref(event.getHref()) == null) {
+						MatchesEntity matchesEntity = new MatchesEntity();
+						matchesEntity.setHomeTeam(event.getHomeTeam());
+						matchesEntity.setAwayTeam(event.getAwayTeam());
+						matchesEntity.setHomeOdd(event.getHomeOdd());
+						matchesEntity.setDraw(event.getDraw());
+						matchesEntity.setAwayOdd(event.getAwayOdd());
+						matchesEntity.setHref(event.getHref());
+						matchesEntity.setAwayScore(event.getAwayScore());
+						matchesEntity.setHomeScore(event.getHomeScore());
+						matchesEntity.setLiveResult(event.getLiveResult());
+						matchesEntity = matchDao.save(matchesEntity);
+						event.setId(matchesEntity.getId());
+					} else {
+						event.setId(matchDao.findByHref(event.getHref()).getId());
+					}
 
-					MatchesEntity matchesEntity = new MatchesEntity();
-					matchesEntity.setHomeTeam(event.getHomeTeam());
-					matchesEntity.setAwayTeam(event.getAwayTeam());
-					matchesEntity.setFirstTeamToWin(event.getFirstTeamToWin());
-					matchesEntity.setDraw(event.getDraw());
-					matchesEntity.setSecondTeamToWin(event.getSecondTeamToWin());
-					matchesEntity.setHref(event.getHref());
-					matchesEntity.setAwayScore(event.getAwayScore());
-					matchesEntity.setHomeScore(event.getHomeScore());
-					matchesEntity.setLiveResult(event.getLiveResult());
-					matchDao.save(matchesEntity);
 					finalUpComingMatches.add(event);
 					if(finalUpComingMatches.size() == 8) {
 						break;
@@ -238,42 +191,44 @@ public class HelloWorldController {
 
 			}
 
-			upcomingMatchesMap.put("upcoming", finalUpComingMatches);
-			UpcomingMatches upcomingMatches = new UpcomingMatches(upcomingMatchesMap);
-			result += printObjecto(upcomingMatches);
+			matchesMap.put("upcoming", finalUpComingMatches);
 		}
 
-		Map<String, List<FootballEvent>> liveMatchesMap = new HashMap<>();
 		List<FootballEvent> finalLiveMatches = new ArrayList<>();
 
 		if (liveEvents != null) {
 			for (FootballEvent event : liveEvents) {
-				if (event.getHomeTeam() != null && event.getSecondTeamToWin() != 0.00 && event.getFirstTeamToWin() != 0.00 && event.getDraw() != 0.00) {
+				if (event.getHomeTeam() != null && event.getAwayOdd() != 0.00 && event.getHomeOdd() != 0.00 && event.getDraw() != 0.00) {
+					if (matchDao.findByHref(event.getHref()) == null) {
+						MatchesEntity matchesEntity = new MatchesEntity();
+						matchesEntity.setHomeTeam(event.getHomeTeam());
+						matchesEntity.setAwayTeam(event.getAwayTeam());
+						matchesEntity.setHomeOdd(event.getHomeOdd());
+						matchesEntity.setDraw(event.getDraw());
+						matchesEntity.setAwayOdd(event.getAwayOdd());
+						matchesEntity.setHref(event.getHref());
+						matchesEntity.setAwayScore(event.getAwayScore());
+						matchesEntity.setHomeScore(event.getHomeScore());
+						matchesEntity.setLiveResult(event.getLiveResult());
+						matchDao.save(matchesEntity);
+						matchesEntity = matchDao.save(matchesEntity);
+						event.setId(matchesEntity.getId());
+					} else {
+						event.setId(matchDao.findByHref(event.getHref()).getId());
+					}
 
-					MatchesEntity matchesEntity = new MatchesEntity();
-					matchesEntity.setHomeTeam(event.getHomeTeam());
-					matchesEntity.setAwayTeam(event.getAwayTeam());
-					matchesEntity.setFirstTeamToWin(event.getFirstTeamToWin());
-					matchesEntity.setDraw(event.getDraw());
-					matchesEntity.setSecondTeamToWin(event.getSecondTeamToWin());
-					matchesEntity.setHref(event.getHref());
-					matchesEntity.setAwayScore(event.getAwayScore());
-					matchesEntity.setHomeScore(event.getHomeScore());
-					matchesEntity.setLiveResult(event.getLiveResult());
-					matchDao.save(matchesEntity);
 					finalLiveMatches.add(event);
 					if(finalLiveMatches.size() == 8) {
 						break;
 					}
 				}
 			}
-			liveMatchesMap.put("live", finalLiveMatches);
-			LiveMatches liveMatches = new LiveMatches(liveMatchesMap);
-			result += printObjecto(liveMatches);
+
+			matchesMap.put("live", finalLiveMatches);
 		}
 
 
-
+		result = printObjecto(matchesMap);
 		return result;
 	}
 

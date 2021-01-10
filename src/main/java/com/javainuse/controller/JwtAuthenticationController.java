@@ -87,20 +87,6 @@ public class JwtAuthenticationController {
 		ResponseMessage responseMessage = new ResponseMessage();
 		try
 		{
-//			DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-//			String myDriver = "org.gjt.mm.mysql.Driver";
-//			String myUrl = this.datasourceUrl;
-//			Connection conn = DriverManager.getConnection(myUrl, this.datasourceUsername, this.datasourcePassword);
-//			String query = "SELECT * FROM user";
-//			Statement st = conn.createStatement();
-//			ResultSet rs = st.executeQuery(query);
-//
-//			List<String> allUsernamesFromdb = new ArrayList<>();
-//			while (rs.next()){
-//				allUsernamesFromdb.add(rs.getString("username"));
-//			}
-//			st.close();
-
 			if(user.getUsername().equals("") || user.getPassword().equals("")) {
 				responseMessage.setMessage("Invalid username or password");
 				responseMessage.setToken(null);
@@ -130,12 +116,11 @@ public class JwtAuthenticationController {
 		{
 			System.err.println("Got an exception! ");
 			System.err.println(e.getMessage());
+            responseMessage.setToken(null);
+            responseMessage.setMessage("Server error!");
+            result = printObject(responseMessage);
+            return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-
-		responseMessage.setToken(null);
-		responseMessage.setMessage("Server error!");
-		result = printObject(responseMessage);
-		return new ResponseEntity<>(result, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 
 	public String printObject(Object object) {

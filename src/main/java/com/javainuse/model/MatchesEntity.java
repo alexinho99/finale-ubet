@@ -1,26 +1,24 @@
 package com.javainuse.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 
 @Entity
-@Table(name = "UpcomingMatches")
+@Table(name = "Matches")
 public class MatchesEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Integer id;
     @Column
     private String homeTeam;
     @Column
     private String awayTeam;
     @Column
-    private double firstTeamToWin;
+    private double homeOdd;
     @Column
     private double draw;
     @Column
-    private double secondTeamToWin;
+    private double awayOdd;
     @Column
     private int href;
     @Column
@@ -29,27 +27,10 @@ public class MatchesEntity {
     private int awayScore;
     @Column
     private String liveScore;
-    @Column
-    private boolean finished;
-    @Column
-    private boolean updated;
 
-    public boolean isUpdated() {
-        return updated;
+    public Integer getId() {
+        return id;
     }
-
-    public void setUpdated(boolean updated) {
-        this.updated = updated;
-    }
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
 
     public String getHomeTeam() {
         return homeTeam;
@@ -67,12 +48,12 @@ public class MatchesEntity {
         this.awayTeam = awayTeam;
     }
 
-    public double getFirstTeamToWin() {
-        return firstTeamToWin;
+    public double getHomeOdd() {
+        return homeOdd;
     }
 
-    public void setFirstTeamToWin(double firstTeamToWin) {
-        this.firstTeamToWin = firstTeamToWin;
+    public void setHomeOdd(double homeOdd) {
+        this.homeOdd = homeOdd;
     }
 
     public double getDraw() {
@@ -83,12 +64,12 @@ public class MatchesEntity {
         this.draw = draw;
     }
 
-    public double getSecondTeamToWin() {
-        return secondTeamToWin;
+    public double getAwayOdd() {
+        return awayOdd;
     }
 
-    public void setSecondTeamToWin(double secondTeamToWin) {
-        this.secondTeamToWin = secondTeamToWin;
+    public void setAwayOdd(double awayOdd) {
+        this.awayOdd = awayOdd;
     }
 
     public int getHref() {
