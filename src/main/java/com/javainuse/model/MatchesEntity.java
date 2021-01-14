@@ -27,17 +27,10 @@ public class MatchesEntity {
     private int awayScore;
     @Column
     private String liveScore;
-
-    public boolean isFinished() {
-        return finished;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
     @Column
     private boolean finished;
+    @Column
+    private boolean updated;
 
     public Integer getId() {
         return id;
@@ -113,5 +106,21 @@ public class MatchesEntity {
 
     public void setLiveResult(String liveScore) {
         this.liveScore=liveScore;
+    }
+
+    public boolean isUpdated() {
+        return this.updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
+    public boolean isFinished() {
+        return finished;
+    }
+
+    public void setFinished(boolean finished) {
+        this.finished = finished;
     }
 }

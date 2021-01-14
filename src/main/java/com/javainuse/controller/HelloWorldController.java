@@ -24,12 +24,25 @@ import java.util.*;
 public class HelloWorldController {
 	List<FootballEvent> upComingEvents;
 	List<FootballEvent> liveEvents = new ArrayList<>();
-//@PathVariable("id") Integer id
+
 	@Autowired
 	private MatchDao matchDao;
 
 	@RequestMapping(value = "/match/{id}" , method = RequestMethod.GET)
 	public String getSingleMatch(@PathVariable("id") Integer id) throws IOException {
+
+//		match = kalsa.metoda(id); ---------->
+
+									//		if (!match.isFinished()) {
+									//			return match;
+									//		} else if (match.isUpdated()) {
+									//			return match;
+									//		} else {
+									//			//tsqlata chikiq
+									//			return match;
+									//		}
+//
+//		return jsonRe;
 
 		MatchesEntity match = matchDao.findById(id).get();
 
@@ -49,7 +62,7 @@ public class HelloWorldController {
 			}
 		}
 
-	//	Optional<MatchesEntity> match = matchDao.findById(id);
+		//	Optional<MatchesEntity> match = matchDao.findById(id);
 		URL urlLiveResult = new URL("https://api-amazon.xscores.com/m_matchresult?sport=1&match_id=" + match.getHref() +"&tz=Europe/Athens&priorityCountry=BULGARIA");
 		HttpURLConnection conn = (HttpURLConnection) urlLiveResult.openConnection();
 
@@ -57,7 +70,6 @@ public class HelloWorldController {
 
 		conn.setRequestProperty("Content-Type","application/json");
 		conn.setRequestMethod("GET");
-
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		String output;
@@ -68,7 +80,6 @@ public class HelloWorldController {
 		}
 
 		in.close();
-
 
 		String jsonRe = printObjecto(response.toString());
 		String result = accessToken;
@@ -90,6 +101,7 @@ public class HelloWorldController {
 		}
 		match.setFinished(finished);
 		matchDao.save(match);
+
 		return jsonRe;
 	}
 
@@ -220,13 +232,16 @@ public class HelloWorldController {
 			}
 		}
 
+		matchDao.setAllAsFinished();
+
 		Map<String, List<FootballEvent>> matchesMap = new HashMap<>();
 		List<FootballEvent> finalUpComingMatches = new ArrayList<>();
 
 		if (upComingEvents != null) {
 			for (FootballEvent event : upComingEvents) {
 				if (event.getHomeTeam() != null && event.getAwayOdd() != 0.00 && event.getHomeOdd() != 0.00 && event.getDraw() != 0.00) {
-					if (matchDao.findByHref(event.getHref()) == null) {
+					MatchesEntity upcomingMatch = matchDao.findByHref(event.getHref());
+					if (upcomingMatch == null) {
 						MatchesEntity matchesEntity = new MatchesEntity();
 						matchesEntity.setHomeTeam(event.getHomeTeam());
 						matchesEntity.setAwayTeam(event.getAwayTeam());
@@ -240,7 +255,15 @@ public class HelloWorldController {
 						matchesEntity = matchDao.save(matchesEntity);
 						event.setId(matchesEntity.getId());
 					} else {
-						event.setId(matchDao.findByHref(event.getHref()).getId());
+						event.setId(upcomingMatch.getId());
+						upcomingMatch.setHomeOdd(event.getHomeOdd());
+						upcomingMatch.setDraw(event.getDraw());
+						upcomingMatch.setAwayOdd(event.getAwayOdd());
+						upcomingMatch.setAwayScore(event.getAwayScore());
+						upcomingMatch.setHomeScore(event.getHomeScore());
+						upcomingMatch.setLiveResult(event.getLiveResult());
+						upcomingMatch.setFinished(false);
+						matchDao.save(upcomingMatch);
 					}
 
 					finalUpComingMatches.add(event);
@@ -248,9 +271,7 @@ public class HelloWorldController {
 						break;
 					}
 				}
-
 			}
-
 			matchesMap.put("upcoming", finalUpComingMatches);
 		}
 
@@ -259,7 +280,8 @@ public class HelloWorldController {
 		if (liveEvents != null) {
 			for (FootballEvent event : liveEvents) {
 				if (event.getHomeTeam() != null && event.getAwayOdd() != 0.00 && event.getHomeOdd() != 0.00 && event.getDraw() != 0.00) {
-					if (matchDao.findByHref(event.getHref()) == null) {
+					MatchesEntity liveMatch = matchDao.findByHref(event.getHref());
+					if (liveMatch == null) {
 						MatchesEntity matchesEntity = new MatchesEntity();
 						matchesEntity.setHomeTeam(event.getHomeTeam());
 						matchesEntity.setAwayTeam(event.getAwayTeam());
@@ -274,16 +296,19 @@ public class HelloWorldController {
 						matchesEntity = matchDao.save(matchesEntity);
 						event.setId(matchesEntity.getId());
 					} else {
-						event.setId(matchDao.findByHref(event.getHref()).getId());
+						event.setId(liveMatch.getId());
+						liveMatch.setHomeOdd(event.getHomeOdd());
+						liveMatch.setDraw(event.getDraw());
+						liveMatch.setAwayOdd(event.getAwayOdd());
+						liveMatch.setAwayScore(event.getAwayScore());
+						liveMatch.setHomeScore(event.getHomeScore());
+						liveMatch.setLiveResult(event.getLiveResult());
+						liveMatch.setFinished(false);
+						matchDao.save(liveMatch);
 					}
-
 					finalLiveMatches.add(event);
-					if(finalLiveMatches.size() == 8) {
-						break;
-					}
 				}
 			}
-
 			matchesMap.put("live", finalLiveMatches);
 		}
 
