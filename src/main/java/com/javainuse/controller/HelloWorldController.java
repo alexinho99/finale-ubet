@@ -1,10 +1,11 @@
 package com.javainuse.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.*;
 import com.javainuse.dao.MatchDao;
 import com.javainuse.model.MatchesEntity;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -80,6 +81,14 @@ public class HelloWorldController {
 		}
 
 		in.close();
+
+		JsonObject jsonObject = new JsonParser().parse(response.toString()).getAsJsonObject();
+		System.out.println(jsonObject.get("team"));
+		JsonElement findStatus = jsonObject.get("team");
+		JsonObject rootObject = findStatus.getAsJsonObject();
+		String statusType = rootObject.get("statusType").getAsString();
+		System.out.println(statusType);
+
 
 		String jsonRe = printObjecto(response.toString());
 		String result = accessToken;
