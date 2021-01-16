@@ -1,6 +1,7 @@
 package com.javainuse.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 
@@ -18,6 +19,16 @@ public class DAOUser {
 	@Column
 	@JsonIgnore
 	private String password;
+	@Column
+	private double balance;
+
+	public double getBalance() {
+		return balance;
+	}
+
+	public void setBalance(double balance) {
+		this.balance = balance;
+	}
 
 	public Integer getId() {
 		return id;
@@ -39,10 +50,12 @@ public class DAOUser {
 		this.email = email;
 	}
 
+	@JsonIgnore
 	public String getPassword() {
 		return password;
 	}
 
+	@JsonProperty
 	public void setPassword(String password) {
 		this.password = password;
 	}
