@@ -1,5 +1,7 @@
 package com.javainuse.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -9,6 +11,7 @@ public class BetEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @JsonIgnore
     @Column
     private Integer userId;
 
@@ -23,6 +26,13 @@ public class BetEntity {
 
     @Column
     private Double odd;
+
+    @JsonIgnore
+    @Column
+    private boolean processed;
+
+    @Column
+    private boolean won;
 
     public long getId() {
         return id;
@@ -66,5 +76,21 @@ public class BetEntity {
 
     public void setOdd(Double odd) {
         this.odd = odd;
+    }
+
+    public boolean isProcessed() {
+        return processed;
+    }
+
+    public void setProcessed(boolean processed) {
+        this.processed = processed;
+    }
+
+    public boolean isWon() {
+        return won;
+    }
+
+    public void setWon(boolean won) {
+        this.won = won;
     }
 }

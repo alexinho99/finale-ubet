@@ -22,14 +22,6 @@ public class DAOUser {
 	@Column
 	private double balance;
 
-	public double getBalance() {
-		return balance;
-	}
-
-	public void setBalance(double balance) {
-		this.balance = balance;
-	}
-
 	public Integer getId() {
 		return id;
 	}
@@ -57,5 +49,13 @@ public class DAOUser {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
 
 }

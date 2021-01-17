@@ -6,15 +6,6 @@ public class UserDTO {
 	private String username;
 	private String email;
 	private String password;
-	private double balance;
-
-	public double getBalance() {
-		return balance;
-	}
-
-	public void setBalance(double balance) {
-		this.balance = balance;
-	}
 
 	public String getUsername() {
 		return username;
