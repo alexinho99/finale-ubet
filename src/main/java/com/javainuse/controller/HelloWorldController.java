@@ -75,118 +75,78 @@ public class HelloWorldController {
 		soccerSite.setAccessToken(accessToken);
 		soccerSiteDao.save(soccerSite);
 
-		Elements idHrefs = document.select("a[id]");
+		Elements rowLiveMatches = document.getElementsByClass("live_match");
+		for (Element rowMatch : rowLiveMatches) {
+			Elements odds = rowMatch.getElementsByClass("odds");
 
-		for (Element item : idHrefs) {
-			String href = item.attr("href");
-			Elements odds = item.getElementsByClass("odds");
+			String homeOddString = odds.first().child(0).text();
 
-			String homeTeam = null;
-			String awayTeam = null;
-			double firstTeamToWin = 0;
-			double draw = 0;
-			double secondTeamToWin = 0;
-			String currHref = null;
-			String extractLiveResult = "";
+			if (homeOddString.equals("")) {
+				continue;
+			}
+
+			String hrefString = rowMatch.attr("href");
+			String[] hrefArr = hrefString.split("/");
+
+			int href = Integer.parseInt(hrefArr[hrefArr.length-1]);
+			String homeTeam = rowMatch.getElementsByClass("score_home_txt").first().text();
+			String awayTeam = rowMatch.getElementsByClass("score_away_txt").first().text();
+			double homeOdd = Double.parseDouble(homeOddString);
+			double awayOdd = Double.parseDouble(odds.first().child(2).text());
+			double drawOdd = Double.parseDouble(odds.first().child(1).text());
+			int homeScore = Integer.parseInt(rowMatch.getElementsByClass("scoreh_ft").first().text());
+			int awayScore = Integer.parseInt(rowMatch.getElementsByClass("scorea_ft").first().text());
+			String liveResult = rowMatch.getElementsByClass("score_score").text();
+
+			FootballEvent event = new FootballEvent();
+			event.setHref(href);
+			event.setHomeTeam(homeTeam);
+			event.setAwayTeam(awayTeam);
+			event.setHomeOdd(homeOdd);
+			event.setAwayOdd(awayOdd);
+			event.setDraw(drawOdd);
+			event.setHomeScore(homeScore);
+			event.setAwayScore(awayScore);
+			event.setLiveResult(liveResult);
+
+			liveEvents.add(event);
+		}
+
+		Elements rowUpcomingMatches = document.getElementsByAttributeValueMatching("data-game-status", "Sched");
+		for (Element rowMatch : rowUpcomingMatches) {
+			Elements odds = rowMatch.getElementsByClass("odds");
+
+			String homeOddString = odds.first().child(0).text();
+
+			if (homeOddString.equals("")) {
+				continue;
+			}
+
+			String hrefString = rowMatch.attr("href");
+			String[] hrefArr = hrefString.split("/");
+
+			int href = Integer.parseInt(hrefArr[hrefArr.length-1]);
+			String homeTeam = rowMatch.getElementsByClass("score_home_txt").first().text();
+			String awayTeam = rowMatch.getElementsByClass("score_away_txt").first().text();
+			double homeOdd = Double.parseDouble(homeOddString);
+			double awayOdd = Double.parseDouble(odds.first().child(2).text());
+			double drawOdd = Double.parseDouble(odds.first().child(1).text());
 			int homeScore = 0;
 			int awayScore = 0;
-			int hrefo = 0;
+			String liveResult = "-";
 
-			if (!href.equals("") && odds.size() != 0) {
+			FootballEvent event = new FootballEvent();
+			event.setHref(href);
+			event.setHomeTeam(homeTeam);
+			event.setAwayTeam(awayTeam);
+			event.setHomeOdd(homeOdd);
+			event.setAwayOdd(awayOdd);
+			event.setDraw(drawOdd);
+			event.setHomeScore(homeScore);
+			event.setAwayScore(awayScore);
+			event.setLiveResult(liveResult);
 
-				for (int i = 0; i < odds.get(0).childNodeSize(); i++) {
-					String coef = odds.get(0).childNode(i).toString();
-					if (i == 0) {
-						if (coef.contains(".")) {
-							foundCoeff = true;
-							Elements liveResult = item.getElementsByClass("scoreh_ft score_cell centerTXT");
-
-							homeTeam = href.substring(0, href.indexOf("vs"));
-							homeTeam = homeTeam.substring(homeTeam.lastIndexOf("/") + 1, homeTeam.length() - 1);
-							//   System.out.println(homeTeam);
-							awayTeam = href.substring(href.indexOf("vs"), href.length() - 1);
-							awayTeam = awayTeam.substring(awayTeam.indexOf("vs") + 3, awayTeam.indexOf("/"));
-							//  System.out.println(awayTeam);
-							currHref = href;
-							//	System.out.println(currHref);
-							currHref = currHref.substring(currHref.lastIndexOf("/") + 1, currHref.length());
-							hrefo = Integer.parseInt(currHref);
-							//		System.out.println(hrefo);
-
-							for (Element element : liveResult) {
-
-								String locateLiveResult = element.parent().toString();
-								for (int j = 0; j < locateLiveResult.length(); j++) {
-									if (Character.isDigit(locateLiveResult.charAt(j))) {
-
-										if (!extractLiveResult.contains("-")) {
-											extractLiveResult = extractLiveResult + locateLiveResult.charAt(j) + "-";
-										} else {
-											extractLiveResult = extractLiveResult + locateLiveResult.charAt(j);
-										}
-									}
-								}
-								int countEntries = 0;
-								for (int j = 0; j < locateLiveResult.length(); j++) {
-
-									if (Character.isDigit(locateLiveResult.charAt(j))) {
-										if (countEntries == 0) {
-											homeScore = Integer.parseInt(String.valueOf(locateLiveResult.charAt(j)));
-											countEntries++;
-										} else {
-											awayScore = Integer.parseInt(String.valueOf(locateLiveResult.charAt(j)));
-										}
-									}
-								}
-							}
-						}
-					}
-
-					if (foundCoeff) {
-
-						if (coef.contains("->")) {
-							coef = coef.substring(coef.indexOf("->"), coef.length() - 1);
-							coef = coef.substring(coef.indexOf("->") + 2, coef.indexOf("<"));
-
-							coef = coef.replace("-", "");
-							coef = coef.trim();
-							//   System.out.println(coef);
-							if (i == 0) {
-								firstTeamToWin = Double.parseDouble(coef);
-							} else if (i == 1) {
-								draw = Double.parseDouble(coef);
-							} else if (i == 2) {
-								secondTeamToWin = Double.parseDouble(coef);
-							}
-						}
-					}
-
-					if (i + 1 >= odds.get(0).childNodeSize()) {
-
-						FootballEvent event = new FootballEvent();
-						event.setLiveResult(extractLiveResult);
-						event.setHomeTeam(homeTeam);
-						event.setAwayTeam(awayTeam);
-						event.setDraw(draw);
-						event.setHomeOdd(firstTeamToWin);
-						event.setAwayOdd(secondTeamToWin);
-						event.setHomeScore(homeScore);
-						event.setAwayScore(awayScore);
-						event.setHref(hrefo);
-
-						if (extractLiveResult.equals("")) {
-							upComingEvents.add(event);
-						} else {
-							try {
-								liveEvents.add(event);
-							} catch (Exception e) {
-
-							}
-						}
-						foundCoeff = false;
-					}
-				}
-			}
+			upComingEvents.add(event);
 		}
 
 		matchDao.setAllAsFinished();
@@ -194,6 +154,7 @@ public class HelloWorldController {
 		Map<String, List<FootballEvent>> matchesMap = new HashMap<>();
 		List<FootballEvent> finalUpComingMatches = new ArrayList<>();
 
+		//za choveka koito chete tova, mnogo se izvinqvam ot imeto na kolega ama neshto ne mu se poluchavat rabotite sry
 		if (upComingEvents != null) {
 			for (FootballEvent event : upComingEvents) {
 				if (event.getHomeTeam() != null && event.getAwayOdd() != 0.00 && event.getHomeOdd() != 0.00 && event.getDraw() != 0.00) {
