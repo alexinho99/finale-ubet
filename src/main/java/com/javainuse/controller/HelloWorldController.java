@@ -27,7 +27,7 @@ import java.util.*;
 @RestController
 public class HelloWorldController {
 	List<FootballEvent> upComingEvents;
-	List<FootballEvent> liveEvents = new ArrayList<>();
+	List<FootballEvent> liveEvents;
 
 	@Autowired
 	private MatchDao matchDao;
@@ -51,9 +51,10 @@ public class HelloWorldController {
 		String result = "";
 
 		upComingEvents = new ArrayList<>();
+		liveEvents = new ArrayList<>();
+
 		String url = "https://www.xscores.com/soccer";
 		Document document = Jsoup.connect(url).get();
-		boolean foundCoeff = false;
 
 		Elements elements = document.select("#menuWrapper > script");
 
@@ -110,6 +111,9 @@ public class HelloWorldController {
 			event.setLiveResult(liveResult);
 
 			liveEvents.add(event);
+
+			System.out.println("zapazvane na live");
+			System.out.println(event.getHomeTeam());
 		}
 
 		Elements rowUpcomingMatches = document.getElementsByAttributeValueMatching("data-game-status", "Sched");
@@ -195,6 +199,8 @@ public class HelloWorldController {
 
 		List<FootballEvent> finalLiveMatches = new ArrayList<>();
 
+		System.out.println("liveEvents ---------- " + liveEvents.size());
+
 		if (liveEvents != null) {
 			for (FootballEvent event : liveEvents) {
 				if (event.getHomeTeam() != null && event.getAwayOdd() != 0.00 && event.getHomeOdd() != 0.00 && event.getDraw() != 0.00) {
@@ -210,7 +216,6 @@ public class HelloWorldController {
 						matchesEntity.setAwayScore(event.getAwayScore());
 						matchesEntity.setHomeScore(event.getHomeScore());
 						matchesEntity.setLiveResult(event.getLiveResult());
-						matchDao.save(matchesEntity);
 						matchesEntity = matchDao.save(matchesEntity);
 						event.setId(matchesEntity.getId());
 					} else {
@@ -224,6 +229,7 @@ public class HelloWorldController {
 						liveMatch.setFinished(false);
 						matchDao.save(liveMatch);
 					}
+					System.out.println("team 1 - " + event.getHomeTeam());
 					finalLiveMatches.add(event);
 				}
 			}
