@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
@@ -86,18 +87,32 @@ public class HelloWorldController {
 				continue;
 			}
 
-			String hrefString = rowMatch.attr("href");
-			String[] hrefArr = hrefString.split("/");
+			int href;
+			String homeTeam;
+			String awayTeam;
+			double homeOdd;
+			double awayOdd;
+			double drawOdd;
+			int homeScore;
+			int awayScore;
+			String liveResult;
 
-			int href = Integer.parseInt(hrefArr[hrefArr.length-1]);
-			String homeTeam = rowMatch.getElementsByClass("score_home_txt").first().text();
-			String awayTeam = rowMatch.getElementsByClass("score_away_txt").first().text();
-			double homeOdd = Double.parseDouble(homeOddString);
-			double awayOdd = Double.parseDouble(odds.first().child(2).text());
-			double drawOdd = Double.parseDouble(odds.first().child(1).text());
-			int homeScore = Integer.parseInt(rowMatch.getElementsByClass("scoreh_ft").first().text());
-			int awayScore = Integer.parseInt(rowMatch.getElementsByClass("scorea_ft").first().text());
-			String liveResult = rowMatch.getElementsByClass("score_score").text();
+			try {
+				String hrefString = rowMatch.attr("href");
+				String[] hrefArr = hrefString.split("/");
+
+				href = Integer.parseInt(hrefArr[hrefArr.length-1]);
+				homeTeam = rowMatch.getElementsByClass("score_home_txt").first().text();
+				awayTeam = rowMatch.getElementsByClass("score_away_txt").first().text();
+				homeOdd = Double.parseDouble(homeOddString);
+				awayOdd = Double.parseDouble(odds.first().child(2).text());
+				drawOdd = Double.parseDouble(odds.first().child(1).text());
+				homeScore = Integer.parseInt(rowMatch.getElementsByClass("scoreh_ft").first().text());
+				awayScore = Integer.parseInt(rowMatch.getElementsByClass("scorea_ft").first().text());
+				liveResult = rowMatch.getElementsByClass("score_score").text();
+			} catch (Exception e) {
+				continue;
+			}
 
 			FootballEvent event = new FootballEvent();
 			event.setHref(href);
@@ -111,9 +126,6 @@ public class HelloWorldController {
 			event.setLiveResult(liveResult);
 
 			liveEvents.add(event);
-
-			System.out.println("zapazvane na live");
-			System.out.println(event.getHomeTeam());
 		}
 
 		Elements rowUpcomingMatches = document.getElementsByAttributeValueMatching("data-game-status", "Sched");
@@ -126,18 +138,32 @@ public class HelloWorldController {
 				continue;
 			}
 
-			String hrefString = rowMatch.attr("href");
-			String[] hrefArr = hrefString.split("/");
+			int href;
+			String homeTeam;
+			String awayTeam;
+			double homeOdd;
+			double awayOdd;
+			double drawOdd;
+			int homeScore;
+			int awayScore;
+			String liveResult;
 
-			int href = Integer.parseInt(hrefArr[hrefArr.length-1]);
-			String homeTeam = rowMatch.getElementsByClass("score_home_txt").first().text();
-			String awayTeam = rowMatch.getElementsByClass("score_away_txt").first().text();
-			double homeOdd = Double.parseDouble(homeOddString);
-			double awayOdd = Double.parseDouble(odds.first().child(2).text());
-			double drawOdd = Double.parseDouble(odds.first().child(1).text());
-			int homeScore = 0;
-			int awayScore = 0;
-			String liveResult = "-";
+			try {
+				String hrefString = rowMatch.attr("href");
+				String[] hrefArr = hrefString.split("/");
+
+				href = Integer.parseInt(hrefArr[hrefArr.length-1]);
+				homeTeam = rowMatch.getElementsByClass("score_home_txt").first().text();
+				awayTeam = rowMatch.getElementsByClass("score_away_txt").first().text();
+				homeOdd = Double.parseDouble(homeOddString);
+				awayOdd = Double.parseDouble(odds.first().child(2).text());
+				drawOdd = Double.parseDouble(odds.first().child(1).text());
+				homeScore = 0;
+				awayScore = 0;
+				liveResult = "-";
+			} catch (Exception e) {
+				continue;
+			}
 
 			FootballEvent event = new FootballEvent();
 			event.setHref(href);
